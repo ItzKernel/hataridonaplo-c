@@ -1,0 +1,12 @@
+the following functions are likely to leak FILE handles: 
+	nhz/state.c:104:1: restore_state
+
+Illetve strtok_r az egy POSIX extension, nem tartalmazza a c szabvány (nem tudom megígérni, hogy gépház megeszi-e sípolás nélkül)
+
+Arra figyelj, hogy a beadott munkában zip gyökerében legyen az összes .c fájl - Gépház érzékeny tud rá lenni, ha sokadik réteg mappában van egy fájl.
+
+Szívesen láttam volna, ha még egy tényleges listázást tudna a félkész változat, de ettől függetlenül látszik a belefektetett munka, elfogadom.
+
+debug kimenetet illene képernyőtörlés után, hogy látszódjon is. :)
+
+Ha már több menüt akarsz absztraktálni, érdemes lehetne fgvpointerezni (majd későbbi előadás témája..)
