@@ -104,7 +104,7 @@ void free_event_list(EventListNode *head) {
 int restore_state(State *state, char *filename) {
   FILE *fp = fopen(filename, "r");
   if (fp == NULL) {
-    perror("Nem sikerult megnyitni a fajlt.");
+    perror("Nem sikerult megnyitni a fajlt");
     return 1;
   }
 

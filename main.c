@@ -42,10 +42,22 @@ int main(int argc, char **argv) {
   }
 
 #if DEBUG
-  printf("Using database file: %s\n", db_file);
+  printf("Adatbazisfajl hasznalata: %s\n", db_file);
+  printf("Allapot visszaallitasa...\n");
 #endif
+
   State state;
-  restore_state(&state, db_file);
+  if (restore_state(&state, db_file) != 0) {
+    printf("Hiba az allapot visszaallitasa soran. Kilepes...\n");
+    return 0;
+  }
+
+#if DEBUG
+  printf("Allapot visszaallitasa sikeres! A folytatashoz nyomj Entert.\n");
+  // not using WAIT_FOR_ENTER macro because it apparently doesn't work well outside
+  // a while loop
+  getchar();
+#endif
 
   menu_main(&state);
 
