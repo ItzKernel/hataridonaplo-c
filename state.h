@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "debug.h"
+#include "util.h"
 
 typedef struct Date {
   int year;
@@ -27,16 +28,27 @@ typedef struct Event {
 } Event;
 
 typedef struct EventListNode {
+  int id;
   Event event;
   struct EventListNode *next;
 } EventListNode;
 
 typedef struct State {
-  char* db_file;
+  char *db_file;
+  void *menu_args;
 
   // events linked list
   EventListNode *event_list_head;
 } State;
+
+typedef struct EventMenuData {
+  // index of the event in the linked list
+  int id;
+} EventMenuData;
+
+Event* find_event_by_index(EventListNode *head, int i) {
+  
+}
 
 /*
  * @brief Makes a date from the input string.
@@ -57,6 +69,9 @@ int parse_date(Date *d, char *str);
  * Modifies the input string.
  */
 int parse_time(Time *t, char *str);
+
+char* date_to_str(Date d);
+char* time_to_str(Time t);
 
 void free_event_list(EventListNode *head);
 int restore_state(State *state, char* filename);

@@ -16,7 +16,7 @@ MENU(menu_main, {
     case 0:
       return;
     case 1:
-      menu_list(s);
+      menu_list(state);
       break;
     case 2:
       printf("Meg nincs implementalva.\n");

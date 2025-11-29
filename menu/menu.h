@@ -3,13 +3,14 @@
 
 #include <stdbool.h>
 #include "../state.h"
+#include "../util.h"
 
 #define MENU_DEFINITION(name) \
-void name(State *s);
+void name(State *state);
 
 // TODO?: put screen clearing into the macro at the start of the while loop
 #define MENU(name, logic) \
-void name(State *s) { \
+void name(State *state) { \
     unsigned char choice; \
     while (true) { \
         logic \
@@ -25,5 +26,6 @@ getchar();
 
 MENU_DEFINITION(menu_list);
 MENU_DEFINITION(menu_main);
+MENU_DEFINITION(menu_event);
 
 #endif

@@ -114,6 +114,7 @@ int restore_state(State *state, char *filename) {
   while (fgets(line_buf, 1001, fp) != NULL) {
     EventListNode *new = malloc(sizeof(EventListNode));
     Event e;
+    remove_newl(line_buf);
     parse_event(&e, line_buf);
 
     new->event = e;
@@ -125,4 +126,20 @@ int restore_state(State *state, char *filename) {
   state->event_list_head = head;
 
   return 0;
+}
+
+char* date_to_str(Date d) {
+  char *str = malloc(11 * sizeof(char));
+  sprintf(str, "%04d-%02d-%02d", d.year, d.month, d.day);
+  str[10] = '\0';
+
+  return str;
+}
+
+char* time_to_str(Time t) {
+  char *str = malloc(6 * sizeof(char));
+  sprintf(str, "%02d:%02d", t.hour, t.minute);
+  str[5] = '\0';
+
+  return str;
 }
