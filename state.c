@@ -1,12 +1,19 @@
 #include "state.h"
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 int parse_date(Date *d, char *str) {
-  char *saveptr;
+  int len = strlen(str);
+  char *copy = malloc((len + 1) * sizeof(char));
+  strncpy(copy, str, len);
+  copy[len] = '\0';
+
   // use strtok_r because static storage is "meh"
-  char *token = strtok_r(str, "-", &saveptr);
+  char *saveptr;
+  char *token = strtok_r(copy, "-", &saveptr);
 
   if (token == NULL)
     return 1;
@@ -22,13 +29,20 @@ int parse_date(Date *d, char *str) {
     return 1;
   d->day = atoi(token);
 
+  free(copy);
+
   return 0;
 }
 
 int parse_time(Time *t, char *str) {
-  char *saveptr;
+  int len = strlen(str);
+  char *copy = malloc((len + 1) * sizeof(char));
+  strncpy(copy, str, len);
+  copy[len] = '\0';
+
   // use strtok_r because static storage is "meh"
-  char *token = strtok_r(str, ":", &saveptr);
+  char *saveptr;
+  char *token = strtok_r(copy, ":", &saveptr);
 
   if (token == NULL)
     return 1;
@@ -38,6 +52,8 @@ int parse_time(Time *t, char *str) {
   if (token == NULL)
     return 1;
   t->minute = atoi(token);
+
+  free(copy);
 
   return 0;
 }
@@ -152,6 +168,7 @@ int restore_state(State *state, char *filename) {
 
   state->db_file = filename;
   state->event_list_head = head;
+  state->menu_args = NULL;
 
   return 0;
 }
@@ -180,4 +197,61 @@ Event* find_event_by_index(EventListNode *head, int index) {
   }
 
   return &head->event;
+}
+
+int remove_node(EventListNode **head_ptr, int index) {
+  EventListNode *head = *head_ptr;
+
+  if (index == 0) {
+    EventListNode *next = head->next;
+    *head_ptr = next;
+    free_event_strings(&head->event);
+    free(head);
+
+    reindex(*head_ptr);
+    return 0;
+  }
+
+  for (int i = 0; i < index - 1; i++) {  
+    if (head->next == NULL) return 1; 
+    head = head->next;
+  }
+
+  EventListNode *mod = head;
+  EventListNode *del = head->next;
+  head = head->next->next;
+  mod->next = head;
+
+  free_event_strings(&del->event);
+  free(del);
+
+  reindex(*head_ptr);
+
+  return 0;
+}
+
+void reindex(EventListNode *head) {
+  int i = 0;
+  for (EventListNode *iter = head; iter != NULL; iter = iter->next) {
+    iter->id = i;
+    i++;
+  }
+}
+
+int add_event(EventListNode *head, Event e) {
+  EventListNode *iter = head;
+  for (; iter->next != NULL; iter = iter->next);
+
+  EventListNode *new = malloc(sizeof(EventListNode));
+  new->event = e;
+  new->id = iter->id + 1;
+  new->next = NULL;
+
+  iter->next = new;
+
+  return 0;
+}
+
+void sort(EventListNode *head) {
+
 }

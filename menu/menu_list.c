@@ -29,7 +29,8 @@ MENU(menu_list, {
     printf("Az esemenyek listaja ures\n");
   }
 
-
+  // bad UX but not going to fix
+  printf("[%d] Kereses\n", i + 1);
   printf("[0] Vissza\n");
   printf("> ");
   scanf("%hhu", &choice);
@@ -47,6 +48,9 @@ MENU(menu_list, {
         state->menu_args = data;
         menu_event(state);
         break;
+      }
+      else if (choice == i + 1) {
+        printf("kjahsdflksa\n");
       }
 
       printf("Hibas valasz!\n");

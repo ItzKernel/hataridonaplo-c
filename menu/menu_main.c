@@ -19,8 +19,7 @@ MENU(menu_main, {
       menu_list(state);
       break;
     case 2:
-      printf("Meg nincs implementalva.\n");
-      WAIT_FOR_ENTER();
+      menu_add(state);
       break;
     default:
       printf("Hibas valasz!\n");

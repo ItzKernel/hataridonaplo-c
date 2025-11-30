@@ -46,6 +46,10 @@ typedef struct EventMenuData {
   int id;
 } EventMenuData;
 
+typedef struct AddMenuData {
+  Event event;
+} AddMenuData;
+
 Event* find_event_by_index(EventListNode *head, int index);
 
 /*
@@ -76,5 +80,10 @@ int validate_time(Time *t);
 
 void free_event_list(EventListNode *head);
 int restore_state(State *state, char* filename);
+
+int remove_node(EventListNode **head, int index);
+int add_event(EventListNode *head, Event e);
+
+void reindex(EventListNode *head);
 
 #endif
