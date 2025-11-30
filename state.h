@@ -46,9 +46,7 @@ typedef struct EventMenuData {
   int id;
 } EventMenuData;
 
-Event* find_event_by_index(EventListNode *head, int i) {
-  
-}
+Event* find_event_by_index(EventListNode *head, int index);
 
 /*
  * @brief Makes a date from the input string.
@@ -72,6 +70,9 @@ int parse_time(Time *t, char *str);
 
 char* date_to_str(Date d);
 char* time_to_str(Time t);
+
+int validate_date(Date *d);
+int validate_time(Time *t);
 
 void free_event_list(EventListNode *head);
 int restore_state(State *state, char* filename);

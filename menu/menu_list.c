@@ -1,4 +1,5 @@
 #include "menu.h"
+#include <stdlib.h>
 
 
 MENU(menu_list, {
@@ -39,6 +40,12 @@ MENU(menu_list, {
       return;
     default:
       if (i > 0 && choice >= 1 && choice <= i) {
+        EventMenuData *data = malloc(sizeof(EventMenuData));
+
+        data->id = choice - 1;
+
+        state->menu_args = data;
+        menu_event(state);
         break;
       }
 

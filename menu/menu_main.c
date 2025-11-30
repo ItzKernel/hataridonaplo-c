@@ -5,7 +5,7 @@ MENU(menu_main, {
 
   // TODO: use VERSION
   printf("Hataridonaplo 0.1\n");
-  printf("[1] Esemenyek kilistazasa\n");
+  printf("\n[1] Esemenyek kilistazasa\n");
   printf("[2] Uj esemeny hozzaadasa\n");
   printf("[0] Kilepes\n");
   printf("> ");

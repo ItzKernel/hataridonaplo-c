@@ -42,6 +42,34 @@ int parse_time(Time *t, char *str) {
   return 0;
 }
 
+int validate_time(Time *t) {
+  if (
+    t->hour < 0 || 23 < t->hour || t->minute < 0 || 59 < t->minute
+  ) return 1;
+
+  return 0;
+}
+
+int validate_date(Date *d) {
+  if (
+    // couldn't possibly convert these insane years to unix timestamps lolol
+    d->year < 0 || 9999 < d->year || d->month < 0 || 12 < d->month || d->day < 0 || 31 < d->day
+  ) return 1;
+
+  // edge cases (buh)
+
+  // leap year
+  if (d->month == 2) {
+    if (d->year % 4 == 0 && 29 < d->day) return 1;
+    else if (d->year % 4 != 0 && 28 < d->day) return 1;
+  }
+
+  if ((d->month == 4 || d->month == 6 || d->month == 9 || d->month == 11) && 30 < d->day)
+    return 1;
+
+  return 0;
+}
+
 // TODO: maybe add a limit for event string lengths
 int parse_event(Event* e, char *str) {
   char *saveptr;
@@ -142,4 +170,14 @@ char* time_to_str(Time t) {
   str[5] = '\0';
 
   return str;
+}
+
+// returns a pointer because returning an event is optional!
+Event* find_event_by_index(EventListNode *head, int index) {
+  for (int i = 0; i < index; i++) {  
+    if (head->next == NULL) return NULL;
+    head = head->next;
+  }
+
+  return &head->event;
 }

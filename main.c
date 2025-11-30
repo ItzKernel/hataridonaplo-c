@@ -59,6 +59,8 @@ int main(int argc, char **argv) {
   getchar();
 #endif
 
+  // yes, i do think that using function ptrs would've been a much nicer approach
+  // but i thought i could get away with this simpler solution instead.
   menu_main(&state);
 
   free_event_list(state.event_list_head);

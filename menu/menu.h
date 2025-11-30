@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "../state.h"
 #include "../util.h"
+#include "../debugmalloc.h"
 
 #define MENU_DEFINITION(name) \
 void name(State *state);
