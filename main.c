@@ -54,14 +54,21 @@ int main(int argc, char **argv) {
 
 #if DEBUG
   printf("Allapot visszaallitasa sikeres! A folytatashoz nyomj Entert.\n");
-  // not using WAIT_FOR_ENTER macro because it apparently doesn't work well outside
-  // a while loop
+  // not using WAIT_FOR_ENTER macro because it apparently doesn't work well
+  // outside a while loop
   getchar();
 #endif
 
-  // yes, i do think that using function ptrs would've been a much nicer approach
-  // but i thought i could get away with this simpler solution instead.
+  state.menu_args = NULL;
+
+  // yes, i do think that using function ptrs would've been a much nicer
+  // approach but i thought i could get away with this simpler solution instead.
   menu_main(&state);
+
+  sort_event_list(&state.event_list_head);
+  if (save_state(&state) != 0) {
+    printf("Hiba a mentes soran!\n");
+  }
 
   free_event_list(state.event_list_head);
 

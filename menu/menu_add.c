@@ -10,7 +10,7 @@ MENU(menu_add, {
   choice = 1;
   choice = choice + 1;
 
-  // super hacky method to keep editing the same event
+  // hacky method to keep editing the same event
   Event *e;
   if (state->menu_args == NULL) {
     Event event;
@@ -36,7 +36,7 @@ MENU(menu_add, {
     // print_event(&((AddMenuData*)state->menu_args)->event);
   }
 
-  AddMenuData *data = (AddMenuData*)state->menu_args;
+  AddMenuData *data = (AddMenuData *)state->menu_args;
   e = &data->event;
 
   print_event(e);
@@ -53,35 +53,36 @@ MENU(menu_add, {
   printf("\n");
 
   switch (choice) {
-    case 0:
-      add_event(state->event_list_head, *e);
-      free(state->menu_args);
-      return;
-    case 1:
-      if (prompt_date_into_dest(&e->date) != 0) {
-        printf("Valami nem stimmel. Nem tortent modositas.\n");
-        WAIT_FOR_ENTER();
-      }
-      break;
-    case 2:
-      if (prompt_time_into_dest(&e->time) != 0) {
-        printf("Valami nem stimmel. Nem tortent modositas.\n");
-        WAIT_FOR_ENTER();
-      }
-      break;
-    case 3:
-      prompt_str_into_dest(&e->place);
-      break;
-    case 4:
-      prompt_str_into_dest(&e->title);
-      break;
-    case 5:
-      prompt_str_into_dest(&e->description);
-      break;
-    default:
-      printf("Hibas valasz!\n");
+  case 0:
+    add_event(state->event_list_head, *e);
+    sort_event_list(&state->event_list_head);
+    free(state->menu_args);
+    state->menu_args = NULL;
+    return;
+  case 1:
+    if (prompt_date_into_dest(&e->date) != 0) {
+      printf("Valami nem stimmel. Nem tortent modositas.\n");
       WAIT_FOR_ENTER();
-      break;
+    }
+    break;
+  case 2:
+    if (prompt_time_into_dest(&e->time) != 0) {
+      printf("Valami nem stimmel. Nem tortent modositas.\n");
+      WAIT_FOR_ENTER();
+    }
+    break;
+  case 3:
+    prompt_str_into_dest(&e->place);
+    break;
+  case 4:
+    prompt_str_into_dest(&e->title);
+    break;
+  case 5:
+    prompt_str_into_dest(&e->description);
+    break;
+  default:
+    printf("Hibas valasz!\n");
+    WAIT_FOR_ENTER();
+    break;
   }
-
 });

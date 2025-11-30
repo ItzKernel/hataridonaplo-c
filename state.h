@@ -6,6 +6,8 @@
 #include <stdlib.h>
 
 #include "debug.h"
+// already included in debug.h but including the second time for good measure!
+#include "debugmalloc.h"
 #include "util.h"
 
 typedef struct Date {
@@ -50,6 +52,10 @@ typedef struct AddMenuData {
   Event event;
 } AddMenuData;
 
+typedef struct ListMenuData {
+  char* search;
+} ListMenuData;
+
 Event* find_event_by_index(EventListNode *head, int index);
 
 /*
@@ -85,5 +91,9 @@ int remove_node(EventListNode **head, int index);
 int add_event(EventListNode *head, Event e);
 
 void reindex(EventListNode *head);
+
+void sort_event_list(EventListNode **head_ptr);
+
+int save_state(State *state);
 
 #endif

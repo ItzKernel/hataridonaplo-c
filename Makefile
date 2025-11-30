@@ -1,4 +1,4 @@
-srcs := main.c state.c util.c menu/menu.c menu/menu_main.c menu/menu_list.c menu/menu_event.c menu/menu_add.c
+srcs := main.c state.c util.c menu/menu.c menu/menu_main.c menu/menu_list.c menu/menu_event.c menu/menu_add.c menu/menu_weeks.c menu/menu_months.c
 hs := main.h state.h util.h menu/menu.h #menu/menu_main.h menu/menu_list.h
 
 main: $(srcs) $(hs)

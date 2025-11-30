@@ -29,6 +29,8 @@ MENU_DEFINITION(menu_list);
 MENU_DEFINITION(menu_main);
 MENU_DEFINITION(menu_event);
 MENU_DEFINITION(menu_add);
+MENU_DEFINITION(menu_weeks);
+MENU_DEFINITION(menu_months);
 
 int prompt_date_into_dest(Date *dest);
 int prompt_time_into_dest(Time *dest);
