@@ -1,9 +1,6 @@
 #include "util.h"
 #include <stdio.h>
 
-/*
- * Removes 
- * */
 void remove_newl(char *str) {
   int len = strlen(str);
 

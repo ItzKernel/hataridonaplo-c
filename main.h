@@ -6,8 +6,7 @@
 
 #include "state.h"
 #include "debug.h"
-#include "menu/menu.h"
-// #include "menu/menu_main.h"
+#include "menu.h"
 
 void print_help();
 int main(int argc, char **argv);
