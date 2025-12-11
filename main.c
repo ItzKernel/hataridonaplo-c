@@ -59,16 +59,16 @@ int main(int argc, char **argv) {
   getchar();
 #endif
 
-  state.menu_args = NULL;
-
   // yes, i do think that using function ptrs would've been a much nicer
   // approach but i thought i could get away with this simpler solution instead.
   menu_main(&state);
 
   sort_event_list(&state.event_list_head);
+  /*
   if (save_state(&state) != 0) {
     printf("Hiba a mentes soran!\n");
   }
+  */
 
   free_event_list(state.event_list_head);
 

@@ -6,11 +6,13 @@
 int get_week_number(Date d) {
   int days_in_months[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
+  // leap year handling
   if (d.year % 4 == 0) {
     days_in_months[2] = 29;
   }
 
   int day_of_year = d.day;
+  // increment day by month days
   for (int i = 1; i < d.month; i++) {
     day_of_year += days_in_months[i];
   }
@@ -62,9 +64,8 @@ MENU(menu_week_events, {
   CLEAR_SCREEN();
 
   WeekMenuData *data = (WeekMenuData *)state->menu_args;
-  if (data == NULL) {
+  if (data == NULL)
     return;
-  }
 
   printf("Hethez tartozo esemenyek (%d. ev %d. het)\n\n", data->year,
          data->week);
@@ -79,7 +80,7 @@ MENU(menu_week_events, {
       char *date = date_to_str(e.date);
       char *time = time_to_str(e.time);
 
-      printf("%d. | %s | %s | %s | %s | %s\n", i + 1, date, time, e.place,
+      printf("%d. | %s | %s | %s | %s | %s\n", iter->id + 1, date, time, e.place,
              e.title, e.description);
 
       free(date);
@@ -90,10 +91,8 @@ MENU(menu_week_events, {
 
   if (i == 0) {
     printf("Nincsenek esemenyek ebben a hetben\n");
-  } else if (i == 1) {
-    printf("\n[1] Esemeny kivalasztasa\n");
   } else {
-    printf("\n[1-%d] Esemeny kivalasztasa\n", i);
+    printf("\n[Sorszam] Esemeny kivalasztasa\n");
   }
 
   printf("[0] Vissza\n");
@@ -107,18 +106,16 @@ MENU(menu_week_events, {
     state->menu_args = NULL;
     return;
   default:
-    if (i > 0 && choice >= 1 && choice <= i) {
+    if (i > 0 && choice >= 1) {
       WeekMenuData *saved_data = data;
 
-      int count = 0;
       for (EventListNode *iter = state->event_list_head; iter != NULL;
            iter = iter->next) {
         Event e = iter->event;
         int event_week = get_week_number(e.date);
 
         if (e.date.year == saved_data->year && event_week == saved_data->week) {
-          count++;
-          if (count == choice) {
+          if (iter->id == choice - 1) {
             EventMenuData *event_data = malloc(sizeof(EventMenuData));
             event_data->id = iter->id;
             state->menu_args = event_data;
@@ -178,9 +175,8 @@ MENU(menu_weeks, {
     if (i > 0 && choice >= 1 && choice <= i) {
       WeekInfo *selected = weeks;
 
-      for (int j = 1; j < choice; j++) {
+      for (int j = 1; j < choice; j++)
         selected = selected->next;
-      }
 
       WeekMenuData *data = malloc(sizeof(WeekMenuData));
       data->year = selected->year;

@@ -58,9 +58,8 @@ MENU(menu_month_events, {
 
   //
   MonthMenuData *data = (MonthMenuData *)state->menu_args;
-  if (data == NULL) {
+  if (data == NULL)
     return;
-  }
 
   printf("Honaphoz tartozo esemenyek (%d. %s)\n\n", data->year,
          get_month_name(data->month));
@@ -74,7 +73,7 @@ MENU(menu_month_events, {
       char *date = date_to_str(e.date);
       char *time = time_to_str(e.time);
 
-      printf("%d. | %s | %s | %s | %s | %s\n", iter->id, date, time, e.place,
+      printf("%d. | %s | %s | %s | %s | %s\n", iter->id + 1, date, time, e.place,
              e.title, e.description);
 
       free(date);
@@ -85,10 +84,8 @@ MENU(menu_month_events, {
 
   if (i == 0) {
     printf("Nincsenek esemenyek ebben a honapban\n");
-  } else if (i == 1) {
-    printf("\n[1] Esemeny kivalasztasa\n");
   } else {
-    printf("\n[1-%d] Esemeny kivalasztasa\n", i);
+    printf("\n[Sorszam] Esemeny kivalasztasa\n");
   }
 
   printf("[0] Vissza\n");
@@ -102,18 +99,16 @@ MENU(menu_month_events, {
     state->menu_args = NULL;
     return;
   default:
-    if (i > 0 && choice >= 1 && choice <= i) {
+    if (i > 0 && choice >= 1) {
       MonthMenuData *saved_data = data;
 
-      int count = 0;
       for (EventListNode *iter = state->event_list_head; iter != NULL;
            iter = iter->next) {
         Event e = iter->event;
 
         if (e.date.year == saved_data->year &&
             e.date.month == saved_data->month) {
-          count++;
-          if (count == choice) {
+          if (iter->id == choice - 1) {
             EventMenuData *event_data = malloc(sizeof(EventMenuData));
             event_data->id = iter->id;
             state->menu_args = event_data;
@@ -174,9 +169,8 @@ MENU(menu_months, {
     if (i > 0 && choice >= 1 && choice <= i) {
       MonthInfo *selected = months;
 
-      for (int j = 1; j < choice; j++) {
+      for (int j = 1; j < choice; j++)
         selected = selected->next;
-      }
 
       MonthMenuData *data = malloc(sizeof(MonthMenuData));
       data->year = selected->year;

@@ -54,7 +54,7 @@ MENU(menu_add, {
 
   switch (choice) {
   case 0:
-    add_event(state->event_list_head, *e);
+    add_event(&state->event_list_head, *e);
     sort_event_list(&state->event_list_head);
     free(state->menu_args);
     state->menu_args = NULL;

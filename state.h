@@ -88,7 +88,7 @@ void free_event_list(EventListNode *head);
 int restore_state(State *state, char* filename);
 
 int remove_node(EventListNode **head, int index);
-int add_event(EventListNode *head, Event e);
+int add_event(EventListNode **head, Event e);
 
 void reindex(EventListNode *head);
 

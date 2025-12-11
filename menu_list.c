@@ -23,6 +23,7 @@ int prompt_search(char **search) {
   *search = malloc((len + 1) * sizeof(char));
   // memcpy is supposed to do a better job than strcpy
   // because it also copies the null terminator
+  // (buffer is initialized with zeroes so we're technically overindexing on purpose)
   strcpy(*search, buf);
   // *search[len - 1] = '\0';
 
@@ -52,10 +53,10 @@ MENU(menu_list, {
     // if there's data restored
     if (search != NULL) {
       if (strstr(e.title, search) != NULL)
-        printf("%d. | %s | %s | %s | %s | %s\n", iter->id, date, time, e.place,
+        printf("%d. | %s | %s | %s | %s | %s\n", iter->id + 1, date, time, e.place,
                e.title, e.description);
     } else { // if not
-      printf("%d. | %s | %s | %s | %s | %s\n", i + 1, date, time, e.place,
+      printf("%d. | %s | %s | %s | %s | %s\n", iter->id + 1, date, time, e.place,
              e.title, e.description);
     }
 
@@ -68,10 +69,10 @@ MENU(menu_list, {
   if (i == 1) {
     printf("\n[1] Esemeny kivalasztasa\n");
   } else if (i > 1) {
-    printf("\n[1-%d] Esemeny kivalasztasa\n", i);
+    printf("\n[Sorszam] Esemeny kivalasztasa\n");
     printf("[%d] Kereses\n", i + 1);
   } else {
-    printf("Az esemenyek listaja ures\n");
+    printf("Az esemenyek listaja ures\n\n");
   }
 
   // bad UX but not going to fix
@@ -93,6 +94,8 @@ MENU(menu_list, {
     state->menu_args = NULL;
     return;
   } else if (i > 0 && choice >= 1 && choice <= i) {
+    // we dont have to check here that the id exists,
+    // we have everything in order anyway
     ListMenuData *saved_data = data;
 
     EventMenuData *event_data = malloc(sizeof(EventMenuData));
@@ -122,8 +125,5 @@ MENU(menu_list, {
       state->menu_args = malloc(sizeof(ListMenuData));
       ((ListMenuData *)state->menu_args)->search = search;
     }
-  } else {
-    printf("Hibas valasz!\n");
-    WAIT_FOR_ENTER();
   }
 });

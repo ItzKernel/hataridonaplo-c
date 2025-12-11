@@ -1,9 +1,24 @@
 # Határidőnapló dokumentáció
-A programot Makefile segítségével fordítjuk. A fordításhoz elengedhetetlen egy C fordító. GCC 13.3.1
-használatával lefordul a program hiba nélkül. A "make" parancs egyszeri lefuttatása után megjelenik a
-lefordult program "main" néven. Parancssorban a "./main" karaktersorozat lefuttatásával el tudjuk
-indítani a frissen generált programot. Módosítások után érdemes újrafordítani a forráskódot, hogy
-frissüljön a futtatható program.
+A programot Makefile segítségével fordítjuk. A fordításhoz elengedhetetlen egy C fordító. GCC 13.3.1 használatával lefordul a program hiba nélkül. A "make" parancs egyszeri lefuttatása után megjelenik a lefordult program "main" néven. Parancssorban a "./main" karaktersorozat lefuttatásával el tudjuk indítani a frissen generált programot. Módosítások után érdemes újrafordítani a forráskódot, hogy frissüljön a futtatható program.
+
+## Tervezési megfontolások
+A program magja egy láncolt lista, ami tartalmazza az eseményeket. Ez egy dinamikus adatszerkezet, ami megadja a program működéséhez szükséges rugalmasságot.
+A menükezelés egyszerű egymásban meghívott függvényekkel van megoldva. Meg lehetett volna oldani függvénypointerekkel is, egy külön menükezelő rendszerrel. Utólag nem ez a megoldás lett választva, mert egyszerűbb megoldásnak tűnt az előbbi.
+
+## Forrásfájlok
+Menük dokumentálásra nem kerül sor, triviális.
+- debug.h  
+Importálja a debugmallocot, további funkciókat biztosít a fejlesztés megkönnyítéséhez. Pl DEBUG érték.
+- debugmalloc.h  
+Memóriabiztonsági makró mágia.
+- main.h, main.c  
+A program fő része. Itt kezdődik minden.
+- menu.h, menu.c  
+Menük által használt közös funkcionalitás definiálására szolgáló forrásfájlok.
+- state.h, state.c  
+A program futása során használt állapot kezelésére felhasznált struktúrákat, függvényeket tartalmazó fájlok.
+- util.h, util.c  
+Apró "hasznosságok" tárháza. Ide kerülnek azok a függvények, amik nagyon általánosak és nem feltétlen van helyük máshol.
 
 ## Precompile hasznosságok
 - DEBUG  
@@ -39,6 +54,14 @@ Menüadatok egy esemény szerkesztéséhez. Tartalmazza az esemény azonosítój
 Menüadatok esemény hozzáadásához. Tartalmaz egy Event struktúrát.
 - ListMenuData  
 Menüadatok a listázó menühöz. Keresési szöveget tárol.
+- MonthInfo  
+Hónap láncolt lista elem. Tartalmaz évet, hónapot, következő elemre mutató pointert.
+- MonthMenuData  
+Menüadatok a hónapválasztós menühöz. Tartalmaz évet és hónapot.
+- WeekInfo  
+Hét láncolt lista elem. Tartalmaz évet, hogy hanyadik hét, következő elemre mutató pointert.
+- WeekMenuData  
+Menüadatok a hétválasztós menühöz. Tartalmaz évet és a hét számát.
 
 ## Függvények, eljárások
 Menük nem kerülnek ide, ugyanúgy működik az összes.
@@ -48,6 +71,8 @@ a programot. Inicializálja az állapotot, betölti az adatbázist, megkezdi a m
 kilépés előtt rendezi és menti az eseménylistát.
 - void print_help()  
 Kiírja a help menüt. A "--help" vagy "-h" flaggel lehet program indításakor ezt előhozni.
+- char* alloc_optional_str(char* str)  
+Segédfüggvény esemény szövegkezeléséhez. Dinamikusan foglal memóriaterületet a bemeneti szöveg alapján. Ha NULL, üres (\0) sztringet foglal.
 - int parse_date(Date *d, char *str)  
 Dátumot állít elő egy szövegből (ÉÉÉÉ-HH-NN formátum).
 - int parse_time(Time* t, char *str)  
@@ -70,7 +95,7 @@ Elmenti az eseménylistát CSV fájlba.
 Megkeres egy eseményt az indexe alapján a láncolt listában.
 - int remove_node(EventListNode **head, int index)  
 Töröl egy elemet a láncolt listából index alapján.
-- int add_event(EventListNode *head, Event e)  
+- int add_event(EventListNode **head, Event e)  
 Hozzáad egy eseményt a láncolt listához.
 - void reindex(EventListNode *head)  
 Újraindexeli a láncolt listát.
@@ -85,9 +110,25 @@ Bekér egy dátumot a felhasználótól és a megadott címre írja.
 - int prompt_time_into_dest(Time *dest)  
 Bekér egy időt a felhasználótól és a megadott címre írja.
 - int prompt_str_into_dest(char **dest)  
-Bekér egy szöveget a felhasználótól és a megadott címre írja.
+Bekér egy szöveget a felhasználótól és a megadott címre írja. Felszabadítja az előző értéket.
 - void print_event(Event *event)  
 Kiír egy eseményt formázottan a képernyőre.
+- char *get_month_name(int month)  
+Visszaadja az adott hónapszámhoz tartozó hónap nevét.
+- free_month_list(MonthInfo *head)  
+Felszabadít egy hónapokat tartalmazó láncolt listát.
+- int month_exists(MonthInfo *head, int year, int month)  
+Megmondja, hogy egy hónap láncolt listában létezik-e az adott hónap-év kombináció.
+- void add_month_if_new(MonthInfo **head, int year, int month)  
+Hozzáadja a hónap láncolt listához a megadott hónap-év kombinációt, ha még nincs benne.
+- int get_week_number(Date d)  
+Visszaadja, hogy hanyadik hétben van az adott dátum.
+- free_week_list(WeekInfo *head)  
+Felszabadít egy heteket tartalmazó láncolt listát.
+- int week_exists(WeekInfo *head, int year, int week)  
+Megmondja, hogy egy hét láncolt listában létezik-e az adott hét-év kombináció.
+- void add_week_if_new(WeekInfo **head, int year, int week)  
+Hozzáadja a hét láncolt listához a megadott hét-év kombinációt, ha még nincs benne.
 
 ## Menük
 - menu_main  

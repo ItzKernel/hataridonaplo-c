@@ -1,60 +1,67 @@
 #include "state.h"
+#include "debug.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+// i free it when it fails
 int parse_date(Date *d, char *str) {
   int len = strlen(str);
   char *copy = malloc((len + 1) * sizeof(char));
   strncpy(copy, str, len);
   copy[len] = '\0';
 
-  // use strtok_r because static storage is "meh"
-  char *saveptr;
-  char *token = strtok_r(copy, "-", &saveptr);
+  char *token = strtok(copy, "-");
 
-  if (token == NULL)
+  if (token == NULL) {
+    free(copy);
     return 1;
+  }
   d->year = atoi(token);
 
-  token = strtok_r(NULL, "-", &saveptr);
-  if (token == NULL)
+  token = strtok(NULL, "-");
+  if (token == NULL) {
+    free(copy);
     return 1;
+  }
   d->month = atoi(token);
 
-  token = strtok_r(NULL, "-", &saveptr);
-  if (token == NULL)
+  token = strtok(NULL, "-");
+  if (token == NULL) {
+    free(copy);
     return 1;
+  }
   d->day = atoi(token);
 
   free(copy);
-
   return 0;
 }
 
+// i free it when it fails
 int parse_time(Time *t, char *str) {
   int len = strlen(str);
   char *copy = malloc((len + 1) * sizeof(char));
   strncpy(copy, str, len);
   copy[len] = '\0';
 
-  // use strtok_r because static storage is "meh"
-  char *saveptr;
-  char *token = strtok_r(copy, ":", &saveptr);
+  char *token = strtok(copy, ":");
 
-  if (token == NULL)
+  if (token == NULL) {
+    free(copy);
     return 1;
+  }
   t->hour = atoi(token);
 
-  token = strtok_r(NULL, ":", &saveptr);
-  if (token == NULL)
+  token = strtok(NULL, ":");
+  if (token == NULL) {
+    free(copy);
     return 1;
+  }
   t->minute = atoi(token);
 
   free(copy);
-
   return 0;
 }
 
@@ -89,57 +96,64 @@ int validate_date(Date *d) {
   return 0;
 }
 
+char* alloc_optional_str(char* str) {
+  char* res;
+
+  if (str != NULL) {
+    res = (char *)malloc((strlen(str) + 1) * sizeof(char));
+    strcpy(res, str);
+  } else {
+    res = (char *)malloc(1 * sizeof(char));
+    res[0] = '\0';
+  }
+
+  return res;
+}
+
 // TODO: maybe add a limit for event string lengths
 int parse_event(Event *e, char *str) {
-  char *saveptr;
-  // use strtok_r because static storage is "meh"
-  char *token = strtok_r(str, ";", &saveptr);
+  char *token = strtok(str, ";");
+
+  // doing these later because strtok has static storage so
+  // i can only work on one string at a time :3
+  char *date_str;
+  char *time_str;
 
   if (token == NULL)
     return 1;
+  date_str = malloc((strlen(token) + 1) * sizeof(char));
+  strcpy(date_str, token);
+
+  // who no free ser
+  token = strtok(NULL, ";");
+  if (token == NULL)
+    return 1;
+  time_str = malloc((strlen(token) + 1) * sizeof(char));
+  strcpy(time_str, token);
+
+  token = strtok(NULL, ";");
+  e->place = alloc_optional_str(token);
+
+  token = strtok(NULL, ";");
+  e->title = alloc_optional_str(token);
+
+  token = strtok(NULL, ";");
+  e->description = alloc_optional_str(token);
+
+
+  // why no free here either ser
   Date d;
-  parse_date(&d, token);
+  if (parse_date(&d, date_str) == 1)
+    return 1;
   e->date = d;
 
-  token = strtok_r(NULL, ";", &saveptr);
-  if (token == NULL)
-    return 1;
   Time t;
-  parse_time(&t, token);
+  if (parse_time(&t, time_str) == 1)
+    return 1;
   e->time = t;
 
-  token = strtok_r(NULL, ";", &saveptr);
-  if (token == NULL)
-    return 1;
-  if (strlen(token) == 0) {
-    e->place = (char *)malloc(1 * sizeof(char));
-    e->place[0] = '\0';
-  } else {
-    e->place = (char *)malloc((strlen(token) + 1) * sizeof(char));
-    strcpy(e->place, token);
-  }
-
-  token = strtok_r(NULL, ";", &saveptr);
-  if (token == NULL)
-    return 1;
-  if (strlen(token) == 0) {
-    e->title = (char *)malloc(1 * sizeof(char));
-    e->title[0] = '\0';
-  } else {
-    e->title = (char *)malloc((strlen(token) + 1) * sizeof(char));
-    strcpy(e->title, token);
-  }
-
-  token = strtok_r(NULL, ";", &saveptr);
-  if (token == NULL)
-    return 1;
-  if (strlen(token) == 0) {
-    e->description = (char *)malloc(1 * sizeof(char));
-    e->description[0] = '\0';
-  } else {
-    e->description = (char *)malloc((strlen(token) + 1) * sizeof(char));
-    strcpy(e->description, token);
-  }
+  free(date_str);
+  free(time_str);
 
   return 0;
 }
@@ -168,7 +182,7 @@ int restore_state(State *state, char *filename) {
 
   EventListNode *head = NULL;
 
-  // going straight to the main menu anyway, let's initialize it with null
+  // we're going straight to the main menu anyway, let's initialize it with null
   state->menu_args = NULL;
 
   if (fp == NULL) {
@@ -178,16 +192,26 @@ int restore_state(State *state, char *filename) {
     return 0;
   }
 
+  int i = 0;
   char line_buf[1001];
   while (fgets(line_buf, 1001, fp) != NULL) {
     EventListNode *new = malloc(sizeof(EventListNode));
     Event e;
     remove_newl(line_buf);
-    parse_event(&e, line_buf);
+
+#if DEBUG
+    printf("Parsing event #%d [%s]\n", i, line_buf);
+#endif
+    if (parse_event(&e, line_buf) == 1) {
+#if DEBUG
+      printf("Failed to parse event %d\n", i);
+#endif
+    }
 
     new->event = e;
     new->next = head;
     head = new;
+    i++;
   };
 
   fclose(fp);
@@ -196,6 +220,7 @@ int restore_state(State *state, char *filename) {
   state->event_list_head = head;
 
   sort_event_list(&state->event_list_head);
+  reindex(state->event_list_head);
 
   return 0;
 }
@@ -227,10 +252,15 @@ Event *find_event_by_index(EventListNode *head, int index) {
   return &head->event;
 }
 
+/* 
+ * removes a node from the linked list.
+ * links the nodes around it together.
+ */
 int remove_node(EventListNode **head_ptr, int index) {
   EventListNode *head = *head_ptr;
 
   if (index == 0) {
+    // we replace head and free the first item
     EventListNode *next = head->next;
     *head_ptr = next;
     free_event_strings(&head->event);
@@ -241,20 +271,24 @@ int remove_node(EventListNode **head_ptr, int index) {
     return 0;
   }
 
+  // we hop based on index
   for (int i = 0; i < index - 1; i++) {
     if (head->next == NULL)
       return 1;
     head = head->next;
   }
 
+  // link together the elems around del
   EventListNode *mod = head;
   EventListNode *del = head->next;
-  head = head->next->next;
+
+  head = del->next;
   mod->next = head;
 
   free_event_strings(&del->event);
   free(del);
 
+  // indexes are messed up now so let's reindex
   reindex(*head_ptr);
 
   return 0;
@@ -270,16 +304,23 @@ void reindex(EventListNode *head) {
   }
 }
 
-int add_event(EventListNode *head, Event e) {
-  EventListNode *iter = head;
-  for (; iter->next != NULL; iter = iter->next)
-    ;
-
+// adds an event at the end of the linked list
+int add_event(EventListNode **head, Event e) {
   EventListNode *new = malloc(sizeof(EventListNode));
   new->event = e;
-  new->id = iter->id + 1;
   new->next = NULL;
 
+  if (*head == NULL) {
+    new->id = 0;
+    *head = new;
+
+    return 0;
+  }
+
+  EventListNode *iter = *head;
+  for (; iter->next != NULL; iter = iter->next);
+
+  new->id = iter->id + 1;
   iter->next = new;
 
   return 0;
@@ -304,6 +345,7 @@ int is_event_later(Event *e1, Event *e2) {
 
 // resorts the entire linked list based on event datetime
 // uses bubble sort
+// no need for reindexing because we only swap events
 void sort_event_list(EventListNode **head_ptr) {
   if (head_ptr == NULL || *head_ptr == NULL || (*head_ptr)->next == NULL) {
     return;
@@ -318,7 +360,9 @@ void sort_event_list(EventListNode **head_ptr) {
     ptr = *head_ptr;
 
     while (ptr->next != last) {
+      // if first event is later than second one
       if (is_event_later(&ptr->event, &ptr->next->event)) {
+        // we swap the events in the nodes
         Event temp = ptr->event;
         ptr->event = ptr->next->event;
         ptr->next->event = temp;
@@ -326,10 +370,10 @@ void sort_event_list(EventListNode **head_ptr) {
       }
       ptr = ptr->next;
     }
-    last = ptr;
-  } while (swapped);
 
-  reindex(*head_ptr);
+    last = ptr;
+
+  } while (swapped);
 }
 
 int save_state(State *state) {
